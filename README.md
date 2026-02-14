@@ -25,6 +25,13 @@ venv\Scripts\activate     # Windows
 pip install -r requirements.txt
 ```
 
+3.1 Mettre à jour les dépendances (optionnel) :
+
+```bash
+pip3 freeze > requirements.txt  # Python3
+pip freeze > requirements.txt  # Python2
+```
+
 4. Appliquer les migrations :
 
 ```bash
