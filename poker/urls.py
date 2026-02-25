@@ -5,7 +5,7 @@ from . import views
 app_name = "poker"
 
 urlpatterns = [
-    path("sessions/", views.create_session, name="create_session"),
+    path("sessions/", views.sessions, name="sessions"),
     path("sessions/<str:code>/join/", views.join_session, name="join_session"),
     path("sessions/<str:code>/items/", views.add_item, name="add_item"),
     path("sessions/<str:code>/start/", views.start_session, name="start_session"),

@@ -41,6 +41,18 @@ def _parse_create_session_payload(request: HttpRequest) -> tuple[dict | None, Ht
 
 
 @csrf_exempt
+def sessions(request: HttpRequest) -> HttpResponse:
+    if request.method == "POST":
+        return create_session(request)
+    elif request.method == "GET":
+        try:
+            active_sessions = Session.objects.filter(status=SessionStatus.WAITING).values("code", "name", "created_at")
+            return JsonResponse({"sessions": list(active_sessions)}, status=200)
+        except Exception:
+            return JsonResponse({"error": "Failed to retrieve waiting sessions."}, status=500)
+    return JsonResponse({"error": "Method not allowed."}, status=405)
+
+@csrf_exempt
 @require_POST
 def create_session(request: HttpRequest) -> HttpResponse:
     payload, error_response = _parse_create_session_payload(request)
