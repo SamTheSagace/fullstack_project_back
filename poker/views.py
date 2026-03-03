@@ -45,19 +45,58 @@ def sessions(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         return create_session(request)
     elif request.method == "GET":
-        try:
-            active_sessions = Session.objects.filter(status=SessionStatus.WAITING).values("code", "name", "created_at")
-            return JsonResponse({"sessions": list(active_sessions)}, status=200)
-        except Exception:
-            return JsonResponse({"error": "Failed to retrieve waiting sessions."}, status=500)
+        return list_sessions(request)
     return JsonResponse({"error": "Method not allowed."}, status=405)
+
+@csrf_exempt
+@require_GET
+def list_sessions(request: HttpRequest) -> HttpResponse:
+    try:
+        waiting_sessions = (
+            Session.objects.filter(status=SessionStatus.WAITING)
+            .prefetch_related("members")
+            .order_by("-created_at")
+        )
+
+        sessions_payload = []
+        for session in waiting_sessions:
+            members_payload = [
+                {
+                    "id": member.pk,
+                    "roblox_user_id": member.roblox_user_id,
+                    "display_name": member.display_name,
+                    "role": member.role,
+                    "status": member.status,
+                    "joined_at": member.joined_at.isoformat() if member.joined_at else None,
+                    "left_at": member.left_at.isoformat() if member.left_at else None,
+                    "last_seen_at": member.last_seen_at.isoformat() if member.last_seen_at else None,
+                }
+                for member in session.members.all()
+            ]
+
+            sessions_payload.append(
+                {
+                    "id": session.pk,
+                    "code": session.code,
+                    "name": session.name,
+                    "status": session.status,
+                    "owner_roblox_user_id": session.owner_roblox_user_id,
+                    "created_at": session.created_at.isoformat() if session.created_at else None,
+                    "updated_at": session.updated_at.isoformat() if session.updated_at else None,
+                    "session_members": members_payload,
+                }
+            )
+
+        return JsonResponse({"sessions": sessions_payload}, status=200)
+    except Exception:
+        return JsonResponse({"error": "Failed to retrieve waiting sessions."}, status=500)
 
 @csrf_exempt
 @require_POST
 def create_session(request: HttpRequest) -> HttpResponse:
     payload, error_response = _parse_create_session_payload(request)
     if error_response is not None or payload is None:
-        return error_response.json() if error_response else JsonResponse({"error": "Invalid payload."}, status=400)
+        return error_response if error_response else JsonResponse({"error": "Invalid payload."}, status=400)
 
     for _ in range(MAX_CODE_ATTEMPTS):
         code = generate_session_code()
