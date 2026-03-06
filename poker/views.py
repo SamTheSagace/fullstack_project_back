@@ -131,6 +131,21 @@ def create_session(request: HttpRequest) -> HttpResponse:
     return JsonResponse({"error": "Could not generate a unique session code."}, status=500)
 
 
+@csrf_exempt
+def delete_session(request: HttpRequest, session_id: int) -> HttpResponse:
+    if request.method != "DELETE":
+        return JsonResponse({"error": "Method not allowed."}, status=405)
+
+    try:
+        session = Session.objects.get(pk=session_id)
+        session.delete()
+        return JsonResponse({"message": "Session deleted successfully."}, status=200)
+    except Session.DoesNotExist:
+        return JsonResponse({"error": "Session not found."}, status=404)
+    except Exception:
+        return JsonResponse({"error": "Failed to delete session."}, status=500)
+
+
 @require_POST
 def join_session(request, code):
     return JsonResponse({"ok": True, "endpoint": "join_session", "code": code})
