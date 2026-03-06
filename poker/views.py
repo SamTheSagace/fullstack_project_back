@@ -29,8 +29,8 @@ def delete_session(request: HttpRequest) -> HttpResponse:
 
 @csrf_exempt
 @require_POST
-def join_session(request: HttpRequest, code: str) -> HttpResponse:
-    return session_member_controller.join_session(request, session_code=code)
+def join_session(request: HttpRequest) -> HttpResponse:
+    return session_member_controller.join_session(request)
 
 @csrf_exempt
 @require_POST
@@ -39,8 +39,8 @@ def create_session_member(request: HttpRequest) -> HttpResponse:
 
 @csrf_exempt
 @require_POST
-def leave_session(request: HttpRequest, code: str) -> HttpResponse:
-    return session_member_controller.leave_session(request, session_code=code)
+def leave_session(request: HttpRequest) -> HttpResponse:
+    return session_member_controller.leave_session(request)
 
 
 @require_POST

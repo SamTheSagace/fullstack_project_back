@@ -60,12 +60,12 @@ class SessionMemberController:
             status=201,
         )
 
-    def join_session(self, request: HttpRequest, session_code: str | None = None) -> HttpResponse:
+    def join_session(self, request: HttpRequest) -> HttpResponse:
         payload, error_response = parse_json_body(request)
         if error_response is not None or payload is None:
             return error_response if error_response else JsonResponse({"error": "Invalid payload."}, status=400)
 
-        effective_session_code = session_code or payload.get("session_code")
+        effective_session_code = payload.get("session_code")
         roblox_user_id = payload.get("roblox_user_id")
         display_name = payload.get("display_name")
         role = payload.get("role", MemberRole.PLAYER)
@@ -105,12 +105,12 @@ class SessionMemberController:
             status=200,
         )
 
-    def leave_session(self, request: HttpRequest, session_code: str | None = None) -> HttpResponse:
+    def leave_session(self, request: HttpRequest) -> HttpResponse:
         payload, error_response = parse_json_body(request)
         if error_response is not None or payload is None:
             return error_response if error_response else JsonResponse({"error": "Invalid payload."}, status=400)
 
-        effective_session_code = session_code or payload.get("session_code")
+        effective_session_code = payload.get("session_code")
         roblox_user_id = payload.get("roblox_user_id")
 
         if not isinstance(effective_session_code, str) or not effective_session_code.strip():
