@@ -1,0 +1,68 @@
+from django.http import HttpRequest, HttpResponse, JsonResponse
+
+from poker.helpers.utils import parse_json_body
+from poker.services.sessions_service import SessionService
+
+
+class SessionController:
+    def __init__(self):
+        self.service = SessionService()
+
+    def list(self, request: HttpRequest) -> HttpResponse:
+        try:
+            sessions_payload = self.service.list_waiting_with_members()
+            return JsonResponse({"sessions": sessions_payload}, status=200)
+        except Exception:
+            return JsonResponse({"error": "Failed to retrieve waiting sessions."}, status=500)
+
+    def create(self, request: HttpRequest) -> HttpResponse:
+        payload, error_response = parse_json_body(request)
+        if error_response is not None or payload is None:
+            return error_response if error_response else JsonResponse({"error": "Invalid payload."}, status=400)
+
+        name = payload.get("name")
+        owner_roblox_user_id = payload.get("owner_roblox_user_id")
+        display_name = payload.get("display_name")
+
+        if not isinstance(name, str) or not name.strip():
+            return JsonResponse({"error": "Field 'name' must be a non-empty string."}, status=400)
+
+        if isinstance(owner_roblox_user_id, bool) or not isinstance(owner_roblox_user_id, int):
+            return JsonResponse({"error": "Field 'owner_roblox_user_id' must be an integer."}, status=400)
+        
+        if not isinstance(display_name, str) or not display_name.strip():
+            return JsonResponse({"error": "Field 'display_name' must be a non-empty string."}, status=400)
+        
+        session = self.service.create(name=name.strip(), owner_roblox_user_id=owner_roblox_user_id, display_name=display_name.strip())
+        if session is None:
+            return JsonResponse({"error": "Could not generate a unique session code."}, status=500)
+
+        return JsonResponse(
+            {
+                "code": session.code,
+                "id": session.pk,
+                "name": session.name,
+                "status": session.status,
+                "owner_roblox_user_id": session.owner_roblox_user_id,
+                "created_at": session.created_at.isoformat() if session.created_at else None,
+            },
+            status=201,
+        )
+
+    def delete(self, request: HttpRequest) -> HttpResponse:
+        payload, error_response = parse_json_body(request)
+        if error_response is not None or payload is None:
+            return error_response if error_response else JsonResponse({"error": "Invalid payload."}, status=400)
+        
+        session_id = payload.get("session_id")
+
+        if isinstance(session_id, bool) or not isinstance(session_id, int):
+            return JsonResponse({"error": "Field 'session_id' must be an integer."}, status=400)
+        
+        try:
+            deleted = self.service.delete(session_id=session_id)
+            if not deleted:
+                return JsonResponse({"error": "Session not found."}, status=404)
+            return JsonResponse({"message": "Session deleted successfully."}, status=200)
+        except Exception:
+            return JsonResponse({"error": "Failed to delete session."}, status=500)
