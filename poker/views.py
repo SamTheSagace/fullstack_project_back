@@ -3,11 +3,16 @@ import secrets
 import string
 
 from django.db import IntegrityError, transaction
+from django.forms import model_to_dict
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_POST, require_http_methods
+
+from poker.controllers.items_controller import ItemController
 
 from .models import MemberRole, MemberStatus, Session, SessionMember, SessionStatus
+
+item_controller = ItemController()
 
 CODE_LENGTH = 6
 CODE_ALPHABET = string.ascii_uppercase + string.digits
@@ -169,3 +174,23 @@ def vote_current_item(request, code):
 @require_GET
 def get_session_state(request, code):
     return JsonResponse({"ok": True, "endpoint": "get_session_state", "code": code})
+
+@require_GET
+def get_item_By_id(request: HttpRequest, id: int):
+    item = item_controller.get_by_id(request, id)
+    if item:
+        return JsonResponse(model_to_dict(item), status=200, safe=False)
+    else:
+        return JsonResponse({"error": "Item not found."}, status=404)
+
+@csrf_exempt
+@require_POST
+def create_item(request: HttpRequest):
+    item_controller.create(request)
+    return JsonResponse("New item created", status=201)
+
+@csrf_exempt
+@require_http_methods(["PUT"])
+def update_item(request: HttpRequest, id: int):
+    item_controller.update(request, id)
+    return JsonResponse("Item updated", status=200, safe=False)
