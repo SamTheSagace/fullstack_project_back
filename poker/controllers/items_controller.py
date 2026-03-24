@@ -26,6 +26,16 @@ class ItemController:
     def get_by_id(self, request: HttpRequest, item_id: int):
         return self.service.get_by_id(item_id)
     
+    def get_by_session_id(self, request: HttpRequest, session_id: int):
+        return self.service.get_by_session_id(session_id)
+    
+    def get_by_session_and_position(
+            self, request: HttpRequest, 
+            session_id: int, 
+            position: int
+    ):
+        return self.service.get_by_session_and_position(session_id, position)
+    
     def update(self, request: HttpRequest, item_id: int):
         try:
             body = request.body.decode("utf-8") if request.body else "{}"
@@ -40,3 +50,6 @@ class ItemController:
             position=payload.get("position"),
             status=payload.get("status"),
         )
+    
+    def delete(self, request: HttpRequest, item_id: int):
+        return self.service.delete(item_id)
