@@ -44,7 +44,6 @@ class ItemService:
                 position: Optional[int] = None, 
                 status: Optional[str] = None,
             ) -> Item:
-                print("test", description)
                 try:
                     item = Item.objects.get(id=item_id)
                     if title is not None:
