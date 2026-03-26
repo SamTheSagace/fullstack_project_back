@@ -21,10 +21,10 @@ def sessions(request: HttpRequest) -> HttpResponse:
     return JsonResponse({"error": "Method not allowed."}, status=405)
 
 @csrf_exempt
-def delete_session(request: HttpRequest) -> HttpResponse:
+def delete_session(request: HttpRequest, id: int) -> HttpResponse:
     if request.method != "DELETE":
         return JsonResponse({"error": "Method not allowed."}, status=405)
-    return session_controller.delete(request)
+    return session_controller.delete(request, id)
 
 
 @csrf_exempt

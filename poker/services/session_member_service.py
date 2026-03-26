@@ -110,9 +110,22 @@ class SessionMemberService:
         member.status = MemberStatus.INACTIVE
         member.left_at = timezone.now()
         member.save()
+
+        cls.delete_session_if_empty_or_owner_left(session=session, roblox_user_id=roblox_user_id)
         return True
 
     @staticmethod
     def delete(roblox_user_id: int):
         deleted_count, _ = SessionMember.objects.filter(roblox_user_id=roblox_user_id).delete()
         return deleted_count > 0
+
+    @staticmethod
+    def delete_session_if_empty_or_owner_left(session: Session, roblox_user_id: int) -> bool:
+        has_members = SessionMember.objects.filter(session=session).exists()
+        if not has_members:
+            session.delete()
+            return True
+        if session.owner_roblox_user_id is not None and session.owner_roblox_user_id == roblox_user_id:
+            session.delete()
+            return True
+        return False

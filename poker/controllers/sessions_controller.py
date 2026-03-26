@@ -49,13 +49,11 @@ class SessionController:
             status=201,
         )
 
-    def delete(self, request: HttpRequest) -> HttpResponse:
+    def delete(self, request: HttpRequest, session_id: int) -> HttpResponse:
         payload, error_response = parse_json_body(request)
         if error_response is not None or payload is None:
             return error_response if error_response else JsonResponse({"error": "Invalid payload."}, status=400)
         
-        session_id = payload.get("session_id")
-
         if isinstance(session_id, bool) or not isinstance(session_id, int):
             return JsonResponse({"error": "Field 'session_id' must be an integer."}, status=400)
         

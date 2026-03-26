@@ -65,12 +65,11 @@ class SessionMemberController:
         if error_response is not None or payload is None:
             return error_response if error_response else JsonResponse({"error": "Invalid payload."}, status=400)
 
-        effective_session_code = session_code or payload.get("session_code")
         roblox_user_id = payload.get("roblox_user_id")
         display_name = payload.get("display_name")
         role = payload.get("role", MemberRole.PLAYER)
 
-        if not isinstance(effective_session_code, str) or not effective_session_code.strip():
+        if not isinstance(session_code, str) or not session_code.strip():
             return JsonResponse({"error": "Field 'session_code' must be a non-empty string."}, status=400)
 
         if isinstance(roblox_user_id, bool) or not isinstance(roblox_user_id, int):
@@ -83,7 +82,7 @@ class SessionMemberController:
             return JsonResponse({"error": f"Field 'role' must be one of: {', '.join(MemberRole.values)}."}, status=400)
 
         member = self.service.join_session(
-            session_code=effective_session_code.strip(),
+            session_code=session_code.strip(),
             roblox_user_id=roblox_user_id,
             display_name=display_name.strip() if isinstance(display_name, str) and display_name.strip() else None,
             role=MemberRole(role),
@@ -110,17 +109,16 @@ class SessionMemberController:
         if error_response is not None or payload is None:
             return error_response if error_response else JsonResponse({"error": "Invalid payload."}, status=400)
 
-        effective_session_code = session_code or payload.get("session_code")
         roblox_user_id = payload.get("roblox_user_id")
 
-        if not isinstance(effective_session_code, str) or not effective_session_code.strip():
+        if not isinstance(session_code, str) or not session_code.strip():
             return JsonResponse({"error": "Field 'session_code' must be a non-empty string."}, status=400)
 
         if isinstance(roblox_user_id, bool) or not isinstance(roblox_user_id, int):
             return JsonResponse({"error": "Field 'roblox_user_id' must be an integer."}, status=400)
 
         success = self.service.leave_session(
-            session_code=effective_session_code.strip(),
+            session_code=session_code.strip(),
             roblox_user_id=roblox_user_id,
         )
         if not success:
