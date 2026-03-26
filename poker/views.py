@@ -9,10 +9,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
 from poker.controllers.items_controller import ItemController
+from poker.controllers.votes_controller import VotesController
 
 from .models import MemberRole, MemberStatus, Session, SessionMember, SessionStatus
 
 item_controller = ItemController()
+vote_controller = VotesController()
 
 CODE_LENGTH = 6
 CODE_ALPHABET = string.ascii_uppercase + string.digits
@@ -159,3 +161,21 @@ def update_item(request: HttpRequest, id: int):
 def delete_item(request: HttpRequest, id: int):
     item_controller.delete(request, id)
     return JsonResponse("Item deleted", status=200, safe=False)
+
+@csrf_exempt
+@require_POST
+def create_vote(request: HttpRequest):
+    vote_controller.create(request)
+    return JsonResponse("New vote created", status=201, safe=False)
+
+@csrf_exempt
+@require_http_methods(["PUT"])
+def update_vote(request: HttpRequest, id: int):
+    vote_controller.update(request, id)
+    return JsonResponse("Vote updated", status=200, safe=False)
+
+@csrf_exempt
+@require_http_methods(['DELETE'])
+def delete_vote(request: HttpRequest, id: int):
+    vote_controller.delete(request, id)
+    return JsonResponse("Vote deleted", status=200, safe=False)

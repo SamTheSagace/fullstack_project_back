@@ -74,3 +74,38 @@ python manage.py migrate
 * Python
 * Django
 * SQLite (par défaut)
+
+## Routes API
+
+## Item :
+create ->
+	uri: http://127.0.0.1:8000/api/items/create/
+	body: {
+  		"title": string,
+ 		"description": string,
+  		"session_id": number,
+  		"position": number,
+  		"status": string,
+  		"created_by_roblox_user_id": number
+	}
+
+get_by_id: one (id=item_id) ->
+	uri: http://127.0.0.1:8000/api/items/:id
+
+get_by_session_id: many (id=session_id)->
+	uri: http://127.0.0.1:8000/api/items/session/:id
+
+get_by_session_and_position: one (id=session_id) ->
+	uri: http://127.0.0.1:8000/api/items/session/:id?position=number
+
+update (id=item_id) ->
+	uri: http://127.0.0.1:8000/api/items/update/:id/
+	body: {
+  		"title": string | undefined,
+ 		"description": string | undefined,
+  		"position": number | undefined,
+  		"status": string | undefined,
+	}
+
+delete (id=item_id) ->
+	uri: http://127.0.0.1:8000/api/items/delete/:id/
