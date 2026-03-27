@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from poker.models import Item
 
@@ -9,6 +9,20 @@ class ItemService:
                 return Item.objects.get(id=item_id)
             except Item.DoesNotExist:
                 raise ValueError("Item not found")
+            
+        @staticmethod
+        def get_by_session_id(session_id: int) -> List[Item]:
+            items = Item.objects.filter(session_id=session_id)
+            if not items.exists():
+                raise ValueError('No items found')
+            return list(items)
+             
+        @staticmethod
+        def get_by_session_and_position(session_id: int, position: int) -> Item:
+            try:
+                return Item.objects.get(session_id = session_id, position = position)
+            except Item.DoesNotExist:
+                raise ValueError('Item not found')
             
         @staticmethod
         def create(title: str, description: str, session_id: int, position: int, status: str, created_by_roblox_user_id: int):
@@ -30,7 +44,6 @@ class ItemService:
                 position: Optional[int] = None, 
                 status: Optional[str] = None,
             ) -> Item:
-                print("test", description)
                 try:
                     item = Item.objects.get(id=item_id)
                     if title is not None:
@@ -45,5 +58,13 @@ class ItemService:
                     return item
                 except Item.DoesNotExist:
                     raise ValueError("Item not found")
+                
+        @staticmethod
+        def delete(item_id):
+            try:
+                item = Item.objects.get(id=item_id)
+                item.delete()
+            except Item.DoesNotExist:
+                raise ValueError("Item not found")
         
         

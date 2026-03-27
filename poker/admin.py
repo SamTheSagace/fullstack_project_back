@@ -1,4 +1,5 @@
 from django.contrib import admin
+from poker.models import Item, Session, Vote
 
 from poker.models import Session, SessionMember, Item, Vote
 

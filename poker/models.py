@@ -123,7 +123,6 @@ class Item(models.Model):
 
 
 class Vote(models.Model):
-    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name="votes")
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="votes")
     roblox_user_id = models.BigIntegerField()
     value = models.CharField(max_length=255)
@@ -135,7 +134,6 @@ class Vote(models.Model):
         db_table = "votes"
         unique_together = (("item", "roblox_user_id"),)
         indexes = [
-            models.Index(fields=["session"]),
             models.Index(fields=["item"]),
             models.Index(fields=["roblox_user_id"]),
         ]
