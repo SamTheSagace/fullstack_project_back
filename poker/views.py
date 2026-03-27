@@ -10,8 +10,9 @@ from django.views.decorators.http import require_GET, require_POST, require_http
 
 from poker.controllers.items_controller import ItemController
 from poker.controllers.votes_controller import VotesController
+from poker.serializers import ItemSerializer
 
-from .models import MemberRole, MemberStatus, Session, SessionMember, SessionStatus
+from .models import MemberRole, MemberStatus, Session, SessionMember, SessionStatus, Item
 
 item_controller = ItemController()
 vote_controller = VotesController()
@@ -125,9 +126,10 @@ def get_session_state(request, code):
 
 @require_GET
 def get_item_by_id(request: HttpRequest, id: int):
-    item = item_controller.get_by_id(request, id)
+    item: Item = item_controller.get_by_id(request, id)
     if item:
-        return JsonResponse(model_to_dict(item), status=200, safe=False)
+        item_serialize = ItemSerializer(item)
+        return JsonResponse(item_serialize.data, status=200, safe=False)
     else:
         return JsonResponse({"error": "Item not found."}, status=404)
     
@@ -137,10 +139,12 @@ def get_item_by_session_id(request: HttpRequest, id: int):
     try:
         if position is not None:
             item = item_controller.get_by_session_and_position(request, id, int(position))
-            return JsonResponse(model_to_dict(item), status=200, safe=False)
+            item_serialize = ItemSerializer(item)
+            return JsonResponse(item_serialize.data, status=200, safe=False)
         else:
             items = item_controller.get_by_session_id(request, id)
-            return JsonResponse([model_to_dict(item) for item in items], status=200, safe=False)
+            items_serialize = [ItemSerializer(item).data for item in items]
+            return JsonResponse(items_serialize, status=200, safe=False)
     except ValueError as e:
         return JsonResponse({"error": str(e)}, status=404)
 

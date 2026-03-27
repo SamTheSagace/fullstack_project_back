@@ -6,13 +6,13 @@ class ItemService:
         @staticmethod
         def get_by_id(item_id: int) -> Item:
             try:
-                return Item.objects.get(id=item_id)
+                return Item.objects.prefetch_related("votes").get(id=item_id)
             except Item.DoesNotExist:
                 raise ValueError("Item not found")
             
         @staticmethod
         def get_by_session_id(session_id: int) -> List[Item]:
-            items = Item.objects.filter(session_id=session_id)
+            items = Item.objects.filter(session_id=session_id).prefetch_related("votes")
             if not items.exists():
                 raise ValueError('No items found')
             return list(items)
@@ -20,7 +20,7 @@ class ItemService:
         @staticmethod
         def get_by_session_and_position(session_id: int, position: int) -> Item:
             try:
-                return Item.objects.get(session_id = session_id, position = position)
+                return Item.objects.prefetch_related("votes").get(session_id = session_id, position = position)
             except Item.DoesNotExist:
                 raise ValueError('Item not found')
             
