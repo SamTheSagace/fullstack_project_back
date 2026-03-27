@@ -9,9 +9,9 @@ class SessionController:
     def __init__(self):
         self.service = SessionService()
 
-    def list(self, request: HttpRequest) -> HttpResponse:
+    def list(self, request: HttpRequest, serv_id: str) -> HttpResponse:
         try:
-            sessions_payload = self.service.list_waiting_with_members()
+            sessions_payload = self.service.list_waiting_with_members(serv_id)
             serialized_payload = [SessionSerializer(session).data for session in sessions_payload]
             return JsonResponse({"sessions": serialized_payload}, status=200)
         except Exception:
@@ -25,6 +25,7 @@ class SessionController:
         name = payload.get("name")
         owner_roblox_user_id = payload.get("owner_roblox_user_id")
         display_name = payload.get("display_name")
+        owner_server_id = payload.get("owner_server_id")
 
         if not isinstance(name, str) or not name.strip():
             return JsonResponse({"error": "Field 'name' must be a non-empty string."}, status=400)
@@ -35,7 +36,15 @@ class SessionController:
         if not isinstance(display_name, str) or not display_name.strip():
             return JsonResponse({"error": "Field 'display_name' must be a non-empty string."}, status=400)
         
-        session = self.service.create(name=name.strip(), owner_roblox_user_id=owner_roblox_user_id, display_name=display_name.strip())
+        if not isinstance(owner_server_id, int) or not owner_server_id:
+            return JsonResponse({"error": "Field 'owner_server_id' must be a non-empty string."}, status=400)
+        
+        session = self.service.create(
+            name=name.strip(), 
+            owner_roblox_user_id=owner_roblox_user_id, 
+            display_name=display_name.strip(),
+            owner_server_id=owner_server_id,
+        )
         if session is None:
             return JsonResponse({"error": "Could not generate a unique session code."}, status=500)
 
