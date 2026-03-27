@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import List
 
 from django.db import IntegrityError, transaction
 
@@ -38,45 +39,17 @@ class SessionService:
         return None
 
     @staticmethod
-    def list_waiting_with_members():
+    def list_waiting_with_members() -> List[Session]:
         sessions = list(
-            Session.objects.filter(status=SessionStatus.WAITING).order_by("-created_at")
+            Session.objects.filter(status=SessionStatus.WAITING)
+            .order_by("-created_at")
+            .prefetch_related('members')
+            .prefetch_related('items')
         )
         if not sessions:
             return []
 
-        session_ids = [session.pk for session in sessions]
-        members_by_session_id = defaultdict(list)
-
-        members = SessionMember.objects.filter(session_id__in=session_ids).order_by("joined_at")
-        for member in members:
-            members_by_session_id[member.session_id].append(
-                {
-                    "id": member.pk,
-                    "roblox_user_id": member.roblox_user_id,
-                    "display_name": member.display_name,
-                    "role": member.role,
-                    "status": member.status,
-                    "joined_at": member.joined_at.isoformat() if member.joined_at else None,
-                }
-            )
-
-        payload = []
-        for session in sessions:
-            payload.append(
-                {
-                    "id": session.pk,
-                    "code": session.code,
-                    "name": session.name,
-                    "status": session.status,
-                    "owner_roblox_user_id": session.owner_roblox_user_id,
-                    "created_at": session.created_at.isoformat() if session.created_at else None,
-                    "updated_at": session.updated_at.isoformat() if session.updated_at else None,
-                    "session_members": members_by_session_id.get(session.pk, []),
-                }
-            )
-
-        return payload
+        return sessions
 
     @staticmethod
     def delete(session_id: int) -> bool:

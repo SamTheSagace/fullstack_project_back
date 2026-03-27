@@ -25,7 +25,14 @@ class ItemService:
                 raise ValueError('Item not found')
             
         @staticmethod
-        def create(title: str, description: str, session_id: int, position: int, status: str, created_by_roblox_user_id: int):
+        def create(
+                title: str, 
+                description: str, 
+                session_id: int, 
+                position: int, 
+                status: str, 
+                created_by_roblox_user_id: int
+            ) -> Item:
              item = Item.objects.create(
                 title=title,
                 description=description,
@@ -60,10 +67,11 @@ class ItemService:
                     raise ValueError("Item not found")
                 
         @staticmethod
-        def delete(item_id):
+        def delete(item_id) -> Item:
             try:
                 item = Item.objects.get(id=item_id)
                 item.delete()
+                return item
             except Item.DoesNotExist:
                 raise ValueError("Item not found")
         

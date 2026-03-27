@@ -1,6 +1,7 @@
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from poker.helpers.utils import parse_json_body
+from poker.serializers import SessionSerializer
 from poker.services.sessions_service import SessionService
 
 
@@ -11,7 +12,8 @@ class SessionController:
     def list(self, request: HttpRequest) -> HttpResponse:
         try:
             sessions_payload = self.service.list_waiting_with_members()
-            return JsonResponse({"sessions": sessions_payload}, status=200)
+            serialized_payload = [SessionSerializer(session).data for session in sessions_payload]
+            return JsonResponse({"sessions": serialized_payload}, status=200)
         except Exception:
             return JsonResponse({"error": "Failed to retrieve waiting sessions."}, status=500)
 
@@ -37,15 +39,9 @@ class SessionController:
         if session is None:
             return JsonResponse({"error": "Could not generate a unique session code."}, status=500)
 
+        serialized_session = SessionSerializer(session)
         return JsonResponse(
-            {
-                "code": session.code,
-                "id": session.pk,
-                "name": session.name,
-                "status": session.status,
-                "owner_roblox_user_id": session.owner_roblox_user_id,
-                "created_at": session.created_at.isoformat() if session.created_at else None,
-            },
+            serialized_session.data,
             status=201,
         )
 

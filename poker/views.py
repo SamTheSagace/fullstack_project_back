@@ -1,4 +1,3 @@
-from django.forms import model_to_dict
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
@@ -8,8 +7,6 @@ from poker.controllers.sessions_controller import SessionController
 from poker.controllers.session_member_controller import SessionMemberController
 from poker.controllers.votes_controller import VotesController
 from poker.serializers import ItemSerializer
-
-from .models import MemberRole, MemberStatus, Session, SessionMember, SessionStatus, Item
 
 item_controller = ItemController()
 session_controller = SessionController()
@@ -69,60 +66,45 @@ def get_session_state(request, code):
 
 @require_GET
 def get_item_by_id(request: HttpRequest, id: int):
-    item: Item = item_controller.get_by_id(request, id)
-    if item:
-        item_serialize = ItemSerializer(item)
-        return JsonResponse(item_serialize.data, status=200, safe=False)
-    else:
-        return JsonResponse({"error": "Item not found."}, status=404)
+    return item_controller.get_by_id(request, id)
     
 @require_GET
 def get_item_by_session_id(request: HttpRequest, id: int):
     position = request.GET.get('position')
     try:
         if position is not None:
-            item = item_controller.get_by_session_and_position(request, id, int(position))
-            item_serialize = ItemSerializer(item)
-            return JsonResponse(item_serialize.data, status=200, safe=False)
+            return item_controller.get_by_session_and_position(request, id, int(position))
         else:
-            items = item_controller.get_by_session_id(request, id)
-            items_serialize = [ItemSerializer(item).data for item in items]
-            return JsonResponse(items_serialize, status=200, safe=False)
+            return item_controller.get_by_session_id(request, id)
     except ValueError as e:
         return JsonResponse({"error": str(e)}, status=404)
 
 @csrf_exempt
 @require_POST
 def create_item(request: HttpRequest):
-    item_controller.create(request)
-    return JsonResponse("New item created", status=201, safe=False)
+    return item_controller.create(request)
 
 @csrf_exempt
 @require_http_methods(["PUT"])
 def update_item(request: HttpRequest, id: int):
-    item_controller.update(request, id)
-    return JsonResponse("Item updated", status=200, safe=False)
+    return item_controller.update(request, id)
 
 @csrf_exempt
 @require_http_methods(['DELETE'])
 def delete_item(request: HttpRequest, id: int):
-    item_controller.delete(request, id)
-    return JsonResponse("Item deleted", status=200, safe=False)
+    return item_controller.delete(request, id)
 
 @csrf_exempt
 @require_POST
 def create_vote(request: HttpRequest):
-    vote_controller.create(request)
-    return JsonResponse("New vote created", status=201, safe=False)
+   return vote_controller.create(request)
 
 @csrf_exempt
 @require_http_methods(["PUT"])
 def update_vote(request: HttpRequest, id: int):
-    vote_controller.update(request, id)
-    return JsonResponse("Vote updated", status=200, safe=False)
+    return vote_controller.update(request, id)
 
 @csrf_exempt
 @require_http_methods(['DELETE'])
 def delete_vote(request: HttpRequest, id: int):
-    vote_controller.delete(request, id)
-    return JsonResponse("Vote deleted", status=200, safe=False)
+    return vote_controller.delete(request, id)
