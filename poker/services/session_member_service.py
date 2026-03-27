@@ -1,3 +1,5 @@
+from typing import List
+
 from django.utils import timezone
 
 from poker.models import MemberRole, MemberStatus, Session, SessionMember, SessionStatus
@@ -5,18 +7,18 @@ from poker.models import MemberRole, MemberStatus, Session, SessionMember, Sessi
 
 class SessionMemberService:
     @staticmethod
-    def list_all():
-        return SessionMember.objects.all().order_by("-joined_at")
+    def list_all() -> List[SessionMember]:
+        return list(SessionMember.objects.all().order_by("-joined_at"))
 
     @staticmethod
-    def get_one_by_roblox_id(roblox_id: int):
+    def get_one_by_roblox_id(roblox_id: int) -> SessionMember | None:
         try:
             return SessionMember.objects.get(roblox_user_id=roblox_id)
         except SessionMember.DoesNotExist:
             return None
 
     @staticmethod
-    def get_by_session_and_roblox_id(session: Session, roblox_user_id: int):
+    def get_by_session_and_roblox_id(session: Session, roblox_user_id: int) -> SessionMember | None:
         try:
             return SessionMember.objects.get(session=session, roblox_user_id=roblox_user_id)
         except SessionMember.DoesNotExist:
@@ -49,7 +51,7 @@ class SessionMemberService:
         session: Session,
         role: MemberRole = MemberRole.PLAYER,
         display_name: str | None = None,
-    ):
+    ) -> SessionMember | None:
         if session.status != SessionStatus.WAITING:
             return None
 
@@ -72,7 +74,7 @@ class SessionMemberService:
         roblox_user_id: int,
         display_name: str | None,
         role: MemberRole = MemberRole.PLAYER,
-    ):
+    ) -> SessionMember | None:
         member = cls.create_or_get(roblox_user_id=roblox_user_id, display_name=display_name)
         if session is None:
             return member
@@ -85,7 +87,7 @@ class SessionMemberService:
         roblox_user_id: int,
         display_name: str | None = None,
         role: MemberRole = MemberRole.PLAYER,
-    ):
+    ) -> SessionMember | None:
         try:
             session = Session.objects.get(code=session_code)
         except Session.DoesNotExist:
@@ -95,7 +97,7 @@ class SessionMemberService:
         return cls.attach_to_session(member=member, session=session, role=role, display_name=display_name)
 
     @classmethod
-    def leave_session(cls, session_code: str, roblox_user_id: int):
+    def leave_session(cls, session_code: str, roblox_user_id: int) -> bool:
         try:
             session = Session.objects.get(code=session_code)
         except Session.DoesNotExist:
@@ -115,7 +117,7 @@ class SessionMemberService:
         return True
 
     @staticmethod
-    def delete(roblox_user_id: int):
+    def delete(roblox_user_id: int) -> bool:
         deleted_count, _ = SessionMember.objects.filter(roblox_user_id=roblox_user_id).delete()
         return deleted_count > 0
 

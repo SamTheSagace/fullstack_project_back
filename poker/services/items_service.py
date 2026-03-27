@@ -6,13 +6,13 @@ class ItemService:
         @staticmethod
         def get_by_id(item_id: int) -> Item:
             try:
-                return Item.objects.get(id=item_id)
+                return Item.objects.prefetch_related("votes").get(id=item_id)
             except Item.DoesNotExist:
                 raise ValueError("Item not found")
             
         @staticmethod
         def get_by_session_id(session_id: int) -> List[Item]:
-            items = Item.objects.filter(session_id=session_id)
+            items = Item.objects.filter(session_id=session_id).prefetch_related("votes")
             if not items.exists():
                 raise ValueError('No items found')
             return list(items)
@@ -20,12 +20,20 @@ class ItemService:
         @staticmethod
         def get_by_session_and_position(session_id: int, position: int) -> Item:
             try:
-                return Item.objects.get(session_id = session_id, position = position)
+                return Item.objects.prefetch_related("votes").get(session_id = session_id, position = position)
             except Item.DoesNotExist:
                 raise ValueError('Item not found')
             
         @staticmethod
-        def create(title: str, description: str, session_id: int, position: int, status: str, created_by_roblox_user_id: int):
+        def create(
+                title: str, 
+                description: str, 
+                session_id: int, 
+                status: str, 
+                created_by_roblox_user_id: int
+            ) -> Item:
+             session_items = Item.objects.filter(session_id=session_id)
+             position = session_items.__len__() + 1
              item = Item.objects.create(
                 title=title,
                 description=description,
@@ -60,10 +68,11 @@ class ItemService:
                     raise ValueError("Item not found")
                 
         @staticmethod
-        def delete(item_id):
+        def delete(item_id) -> Item:
             try:
                 item = Item.objects.get(id=item_id)
                 item.delete()
+                return item
             except Item.DoesNotExist:
                 raise ValueError("Item not found")
         

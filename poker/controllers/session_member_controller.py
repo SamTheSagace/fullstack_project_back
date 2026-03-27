@@ -2,6 +2,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from poker.helpers.utils import parse_json_body
 from poker.models import MemberRole
+from poker.serializers import SessionMemberSerializer
 from poker.services.session_member_service import SessionMemberService
 
 class SessionMemberController:
@@ -11,7 +12,8 @@ class SessionMemberController:
     def list(self, request: HttpRequest) -> HttpResponse:
         try:
             session_members_payload = self.service.list_all()
-            return JsonResponse({"session_members": session_members_payload}, status=200)
+            serialized_payload = [SessionMemberSerializer(member).data for member in session_members_payload]
+            return JsonResponse({"session_members": serialized_payload}, status=200)
         except Exception:
             return JsonResponse({"error": "Failed to retrieve session members."}, status=500)
 
@@ -46,17 +48,9 @@ class SessionMemberController:
         if member is None:
             return JsonResponse({"error": "Failed to create session member for this session."}, status=400)
 
+        serialized_member = SessionMemberSerializer(member)
         return JsonResponse(
-            {
-                "id": member.pk,
-                "session_id": member.session_id,
-                "roblox_user_id": member.roblox_user_id,
-                "display_name": member.display_name,
-                "role": member.role,
-                "status": member.status,
-                "joined_at": member.joined_at.isoformat() if member.joined_at else None,
-                "left_at": member.left_at.isoformat() if member.left_at else None,
-            },
+            serialized_member.data,
             status=201,
         )
 
@@ -90,17 +84,9 @@ class SessionMemberController:
         if member is None:
             return JsonResponse({"error": "Failed to join session. Please check the session code and try again."}, status=400)
 
+        serialized_member = SessionMemberSerializer(member)
         return JsonResponse(
-            {
-                "id": member.pk,
-                "session_id": member.session_id,
-                "roblox_user_id": member.roblox_user_id,
-                "display_name": member.display_name,
-                "role": member.role,
-                "status": member.status,
-                "joined_at": member.joined_at.isoformat() if member.joined_at else None,
-                "left_at": member.left_at.isoformat() if member.left_at else None,
-            },
+            serialized_member.data,
             status=200,
         )
 

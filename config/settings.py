@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'poker',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
