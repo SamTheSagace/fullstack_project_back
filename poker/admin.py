@@ -1,8 +1,10 @@
 from django.contrib import admin
 from poker.models import Item, Session, Vote
 
-# Register your models here.
+from poker.models import Session, SessionMember, Item, Vote
 
-admin.site.register(Item)
+# Register your models here.
 admin.site.register(Session)
+admin.site.register(SessionMember)
+admin.site.register(Item)
 admin.site.register(Vote)

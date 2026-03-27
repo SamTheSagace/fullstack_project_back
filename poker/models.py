@@ -10,12 +10,12 @@ class SessionStatus(models.TextChoices):
 class MemberRole(models.TextChoices):
     OWNER = "owner", "owner"
     PLAYER = "player", "player"
+    GUEST = "guest", "guest"
 
 
 class MemberStatus(models.TextChoices):
     ACTIVE = "active", "active"
-    LEFT = "left", "left"
-    KICKED = "kicked", "kicked"
+    INACTIVE = "inactive", "inactive"
 
 
 class ItemStatus(models.TextChoices):
@@ -57,8 +57,14 @@ class Session(models.Model):
 
 
 class SessionMember(models.Model):
-    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name="members")
-    roblox_user_id = models.BigIntegerField()
+    session = models.ForeignKey(
+        Session,
+        on_delete=models.SET_NULL,
+        related_name="members",
+        null=True,
+        blank=True,
+    )
+    roblox_user_id = models.BigIntegerField(unique=True)
     display_name = models.CharField(max_length=255, null=True, blank=True)
     role = models.CharField(
         max_length=20,
@@ -72,13 +78,11 @@ class SessionMember(models.Model):
     )
     joined_at = models.DateTimeField(auto_now_add=True)
     left_at = models.DateTimeField(null=True, blank=True)
-    last_seen_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "session_members"
-        unique_together = (("session", "roblox_user_id"),)
         indexes = [
             models.Index(fields=["session"]),
             models.Index(fields=["roblox_user_id"]),
@@ -86,7 +90,8 @@ class SessionMember(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"{self.display_name or self.roblox_user_id} in {self.session.code}"
+        session_code = self.session.code if self.session else "no-session"
+        return f"{self.display_name or self.roblox_user_id} in {session_code}"
 
 
 class Item(models.Model):
