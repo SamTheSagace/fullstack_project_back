@@ -12,7 +12,7 @@ MAX_CODE_ATTEMPTS = 20
 
 class SessionService:
     @staticmethod
-    def create(name: str, owner_roblox_user_id: int, display_name: str) -> Session | None:
+    def create(name: str, owner_roblox_user_id: int, display_name: str, owner_server_id: int) -> Session | None:
         for _ in range(MAX_CODE_ATTEMPTS):
             code = generate_session_code()
             try:
@@ -22,6 +22,7 @@ class SessionService:
                         name=name,
                         status=SessionStatus.WAITING,
                         owner_roblox_user_id=owner_roblox_user_id,
+                        owner_server_id = owner_server_id,
                     )
                     owner = SessionMemberService.create(
                         session=session,
@@ -39,13 +40,22 @@ class SessionService:
         return None
 
     @staticmethod
-    def list_waiting_with_members() -> List[Session]:
+    def list_waiting_with_members(owner_server_id: str) -> List[Session]:
         sessions = list(
-            Session.objects.filter(status=SessionStatus.WAITING)
-            .order_by("-created_at")
-            .prefetch_related('members')
-            .prefetch_related('items')
-        )
+                Session.objects.filter(status=SessionStatus.WAITING)
+                .order_by("-created_at")
+                .prefetch_related('members')
+                .prefetch_related('items')
+            )
+        if owner_server_id:
+            serv_id = int(owner_server_id)
+            sessions = list(
+                Session.objects.filter(status=SessionStatus.WAITING, owner_server_id=serv_id)
+                .order_by("-created_at")
+                .prefetch_related('members')
+                .prefetch_related('items')
+            )
+        
         if not sessions:
             return []
 

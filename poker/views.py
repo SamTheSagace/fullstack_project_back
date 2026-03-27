@@ -6,7 +6,6 @@ from poker.controllers.items_controller import ItemController
 from poker.controllers.sessions_controller import SessionController
 from poker.controllers.session_member_controller import SessionMemberController
 from poker.controllers.votes_controller import VotesController
-from poker.serializers import ItemSerializer
 
 item_controller = ItemController()
 session_controller = SessionController()
@@ -19,7 +18,10 @@ def sessions(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         return session_controller.create(request)
     elif request.method == "GET":
-        return session_controller.list(request)
+        serv_id = request.GET.get('owner_server_id')
+        if not serv_id:
+            return JsonResponse({"error": "owner_server_id not found"}, status=400)
+        return session_controller.list(request, serv_id)
     return JsonResponse({"error": "Method not allowed."}, status=405)
 
 @csrf_exempt

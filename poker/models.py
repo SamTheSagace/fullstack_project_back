@@ -41,6 +41,7 @@ class Session(models.Model):
         blank=True,
         related_name="current_in_sessions",
     )
+    owner_server_id = models.BigIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
