@@ -59,6 +59,6 @@ class SessionService:
     @staticmethod
     def get_by_code(code: str) -> Session | None:
         try:
-            return Session.objects.get(code=code)
+            return Session.objects.prefetch_related('members').prefetch_related('items').get(code=code)
         except Session.DoesNotExist:
             return None

@@ -84,7 +84,6 @@ create ->
   		"title": string,
  		"description": string,
   		"session_id": number,
-  		"position": number,
   		"status": string,
   		"created_by_roblox_user_id": number
 	}

@@ -29,10 +29,11 @@ class ItemService:
                 title: str, 
                 description: str, 
                 session_id: int, 
-                position: int, 
                 status: str, 
                 created_by_roblox_user_id: int
             ) -> Item:
+             session_items = Item.objects.filter(session_id=session_id)
+             position = session_items.__len__() + 1
              item = Item.objects.create(
                 title=title,
                 description=description,
