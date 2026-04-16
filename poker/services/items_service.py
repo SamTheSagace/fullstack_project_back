@@ -68,9 +68,12 @@ class ItemService:
                     raise ValueError("Item not found")
                 
         @staticmethod
-        def delete(item_id) -> Item:
+        def delete(item_id: int, created_by_roblox_user_id: int) -> Item:
             try:
-                item = Item.objects.get(id=item_id)
+                item = Item.objects.get(id=item_id, created_by_roblox_user_id=created_by_roblox_user_id)
+                if item.created_by_roblox_user_id != created_by_roblox_user_id:
+                    raise ValueError("You do not have permission to delete this item")
+                
                 item.delete()
                 return item
             except Item.DoesNotExist:

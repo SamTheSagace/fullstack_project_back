@@ -54,6 +54,22 @@ class SessionController:
             status=201,
         )
 
+    def start(self, request: HttpRequest, session_id: int) -> HttpResponse:
+        payload, error_response = parse_json_body(request)
+        if error_response is not None or payload is None:
+            return error_response if error_response else JsonResponse({"error": "Invalid payload."}, status=400)
+        
+        if isinstance(session_id, bool) or not isinstance(session_id, int):
+            return JsonResponse({"error": "Field 'session_id' must be an integer."}, status=400)
+        
+        try:
+            started = self.service.start(session_id=session_id)
+            if not started:
+                return JsonResponse({"error": "Session not found."}, status=404)
+            return JsonResponse({"message": "Session started successfully."}, status=200)
+        except Exception:
+            return JsonResponse({"error": "Failed to start session."}, status=500)
+
     def delete(self, request: HttpRequest, session_id: int) -> HttpResponse:
         payload, error_response = parse_json_body(request)
         if error_response is not None or payload is None:

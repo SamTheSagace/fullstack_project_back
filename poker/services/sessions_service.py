@@ -62,6 +62,13 @@ class SessionService:
         return sessions
 
     @staticmethod
+    def start(session_id: int) -> bool:
+        updated_count = Session.objects.filter(pk=session_id, status=SessionStatus.WAITING).update(
+            status=SessionStatus.PLAYING
+            )
+        return updated_count > 0
+
+    @staticmethod
     def delete(session_id: int) -> bool:
         deleted_count, _ = Session.objects.filter(pk=session_id).delete()
         return deleted_count > 0
