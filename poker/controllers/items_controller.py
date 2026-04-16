@@ -2,11 +2,11 @@ import json
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from poker.serializers import ItemSerializer
-from poker.services.items_service import ItemService
+from poker.services.items_service import ItemsService
 
 class ItemController:
     def __init__(self):
-        self.service = ItemService()
+        self.service = ItemsService()
 
     def create(self, request: HttpRequest) -> HttpResponse:
         try:

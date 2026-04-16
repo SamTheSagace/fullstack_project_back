@@ -4,10 +4,10 @@ class VotesService:
     @staticmethod
     def create(item_id: int, roblox_user_id: int, value: str) -> Vote:
         try:
-            vote = Vote.objects.create(
+            vote, _ = Vote.objects.update_or_create(
                 item_id = item_id,
                 roblox_user_id = roblox_user_id,
-                value = value,
+                defaults={"value": value},
             )
             return vote
         except Vote.DoesNotExist:
