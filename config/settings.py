@@ -26,7 +26,12 @@ SECRET_KEY = 'django-insecure-9!06-pgvu_ov$0^iuw(*uo7qh43ip2%kqvnhp_ao7*m9wxrq%6
 DEBUG = True
 
 # Allow all hosts during development
-ALLOWED_HOSTS = ['nontestable-emory-punningly.ngrok-free.dev', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'nonlucidly-strangerlike-marylou.ngrok-free.dev',
+    'nontestable-emory-punningly.ngrok-free.dev', 
+    'localhost', 
+    '127.0.0.1'
+]
 
 
 CSRF_TRUSTED_ORIGINS = [

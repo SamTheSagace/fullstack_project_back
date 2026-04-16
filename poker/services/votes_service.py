@@ -4,12 +4,18 @@ class VotesService:
     @staticmethod
     def create(item_id: int, roblox_user_id: int, value: str) -> Vote:
         try:
-            vote = Vote.objects.create(
-                item_id = item_id,
-                roblox_user_id = roblox_user_id,
-                value = value,
-            )
-            return vote
+            existingVote = Vote.objects.get(item_id = item_id, roblox_user_id = roblox_user_id)
+            if existingVote:
+                existingVote.value = value
+                existingVote.save()
+                return existingVote
+            else:
+                vote = Vote.objects.create(
+                    item_id = item_id,
+                    roblox_user_id = roblox_user_id,
+                    value = value,
+                )
+                return vote
         except Vote.DoesNotExist:
             raise ValueError('Vote not found')
     
