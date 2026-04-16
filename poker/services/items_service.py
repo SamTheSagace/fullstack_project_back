@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from poker.models import Item
 
-class ItemService:
+class ItemsService:
         @staticmethod
         def get_by_id(item_id: int) -> Item:
             try:
