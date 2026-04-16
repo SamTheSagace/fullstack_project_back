@@ -46,30 +46,32 @@ def create_session_member(request: HttpRequest) -> HttpResponse:
 def leave_session(request: HttpRequest, code: str) -> HttpResponse:
     return session_member_controller.leave_session(request, session_code=code)
 
-
+@csrf_exempt
 @require_POST
 def add_item(request, code):
     return JsonResponse({"ok": True, "endpoint": "add_item", "code": code})
 
-
+@csrf_exempt
 @require_POST
-def start_session(request, code):
-    return JsonResponse({"ok": True, "endpoint": "start_session", "code": code})
+def start_session(request: HttpRequest, session_id: int) -> HttpResponse:
+    return session_controller.start(request, session_id)
 
-
+@csrf_exempt
 @require_POST
 def vote_current_item(request, code):
     return JsonResponse({"ok": True, "endpoint": "vote_current_item", "code": code})
 
-
+@csrf_exempt
 @require_GET
 def get_session_state(request, code):
     return JsonResponse({"ok": True, "endpoint": "get_session_state", "code": code})
 
+@csrf_exempt
 @require_GET
 def get_item_by_id(request: HttpRequest, id: int):
     return item_controller.get_by_id(request, id)
-    
+
+@csrf_exempt
 @require_GET
 def get_item_by_session_id(request: HttpRequest, id: int):
     position = request.GET.get('position')
