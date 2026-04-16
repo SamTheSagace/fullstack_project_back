@@ -4,7 +4,7 @@ from typing import List
 from django.db import IntegrityError, transaction
 
 from poker.helpers.utils import generate_session_code
-from poker.models import MemberRole, MemberStatus, Session, SessionMember, SessionStatus
+from poker.models import ItemStatus, MemberRole, MemberStatus, Session, SessionMember, SessionStatus
 from .session_member_service import SessionMemberService
 
 MAX_CODE_ATTEMPTS = 20
@@ -62,11 +62,23 @@ class SessionService:
         return sessions
 
     @staticmethod
-    def start(session_id: int) -> bool:
-        updated_count = Session.objects.filter(pk=session_id, status=SessionStatus.WAITING).update(
-            status=SessionStatus.PLAYING
-            )
-        return updated_count > 0
+    def start(session_id: int) -> Session | None:
+        try:
+            with transaction.atomic():
+                session = Session.objects.prefetch_related("items").select_for_update().get(
+                    pk=session_id,
+                    status=SessionStatus.WAITING,
+                )
+                first_item = session.items.order_by("position", "pk").first()
+                session.status = SessionStatus.PLAYING
+                session.current_item = first_item
+                session.save(update_fields=["status", "current_item", "updated_at"])
+                if first_item:
+                    first_item.status = ItemStatus.VOTING
+                    first_item.save(update_fields=["status", "updated_at"])
+                return session
+        except Session.DoesNotExist:
+            return None
 
     @staticmethod
     def delete(session_id: int) -> bool:

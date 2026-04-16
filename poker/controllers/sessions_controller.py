@@ -63,10 +63,11 @@ class SessionController:
             return JsonResponse({"error": "Field 'session_id' must be an integer."}, status=400)
         
         try:
-            started = self.service.start(session_id=session_id)
-            if not started:
-                return JsonResponse({"error": "Session not found."}, status=404)
-            return JsonResponse({"message": "Session started successfully."}, status=200)
+            session = self.service.start(session_id=session_id)
+            if session is None:
+                return JsonResponse({"error": "Session not found or could not be started."}, status=404)
+            serialized_session = SessionSerializer(session)
+            return JsonResponse(serialized_session.data, status=200)            
         except Exception:
             return JsonResponse({"error": "Failed to start session."}, status=500)
 
