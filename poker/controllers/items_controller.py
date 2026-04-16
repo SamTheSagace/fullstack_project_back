@@ -102,6 +102,20 @@ class ItemController:
         return JsonResponse(serialized_item.data, status=200, safe=False)
     
     def delete(self, request: HttpRequest, item_id: int) -> HttpResponse:
-        item = self.service.delete(item_id)
+        try:
+            body = request.body.decode("utf-8") if request.body else "{}"
+            payload = json.loads(body)
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            return JsonResponse({"error": "Invalid JSON body."}, status=400)
+        
+        if "created_by_roblox_user_id" not in payload:
+            return JsonResponse({"error": "Missing field: created_by_roblox_user_id"}, status=400)
+        if not isinstance(payload["created_by_roblox_user_id"], int):
+            return JsonResponse({"error": "created_by_roblox_user_id must be an integer."}, status=400)
+
+        item = self.service.delete(
+            item_id, 
+            created_by_roblox_user_id=payload.get("created_by_roblox_user_id")
+        )
         serialized_item = ItemSerializer(item)
         return JsonResponse(serialized_item.data, status=201, safe=False)
