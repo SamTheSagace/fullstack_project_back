@@ -48,23 +48,9 @@ def leave_session(request: HttpRequest, code: str) -> HttpResponse:
 
 @csrf_exempt
 @require_POST
-def add_item(request, code):
-    return JsonResponse({"ok": True, "endpoint": "add_item", "code": code})
-
-@csrf_exempt
-@require_POST
 def start_session(request: HttpRequest, session_id: int) -> HttpResponse:
     return session_controller.start(request, session_id)
 
-@csrf_exempt
-@require_POST
-def vote_current_item(request, code):
-    return JsonResponse({"ok": True, "endpoint": "vote_current_item", "code": code})
-
-@csrf_exempt
-@require_GET
-def get_session_state(request, code):
-    return JsonResponse({"ok": True, "endpoint": "get_session_state", "code": code})
 
 @csrf_exempt
 @require_GET

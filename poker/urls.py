@@ -10,10 +10,7 @@ urlpatterns = [
     path("sessions/<int:id>/", views.delete_session, name="delete_session"),
     path("sessions/<str:code>/join/", views.join_session, name="join_session"),
     path("sessions/<str:code>/leave/", views.leave_session, name="leave_session"),
-    path("sessions/<str:code>/items/", views.add_item, name="add_item"),
     path("sessions/<int:session_id>/start/", views.start_session, name="start_session"),
-    path("sessions/<str:code>/vote/", views.vote_current_item, name="vote_current_item"),
-    path("sessions/<str:code>/state/", views.get_session_state, name="get_session_state"),
     #Session members
     path("session-members/create/", views.create_session_member, name="create_session_member"),
     #Items
