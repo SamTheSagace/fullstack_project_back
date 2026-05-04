@@ -7,6 +7,7 @@ app_name = "poker"
 urlpatterns = [
     #Sessions
     path("sessions/", views.sessions, name="sessions"),
+    path("sessions/<str:code>/", views.get_session_by_code, name="get_session_by_code"),
     path("sessions/<int:id>/", views.delete_session, name="delete_session"),
     path("sessions/<str:code>/join/", views.join_session, name="join_session"),
     path("sessions/<str:code>/leave/", views.leave_session, name="leave_session"),
