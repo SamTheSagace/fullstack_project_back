@@ -16,6 +16,16 @@ class SessionController:
             return JsonResponse({"sessions": serialized_payload}, status=200)
         except Exception:
             return JsonResponse({"error": "Failed to retrieve waiting sessions."}, status=500)
+        
+    def get_by_code(self, request: HttpRequest, code: str) -> HttpResponse:
+        try:
+            session = self.service.get_by_code(code)
+            if session is None:
+                return JsonResponse({"error": "Session not found."}, status=404)
+            serialized_session = SessionSerializer(session)
+            return JsonResponse(serialized_session.data, status=200)
+        except Exception:
+            return JsonResponse({"error": "Failed to retrieve session."}, status=500)
 
     def create(self, request: HttpRequest) -> HttpResponse:
         payload, error_response = parse_json_body(request)
