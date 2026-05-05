@@ -89,6 +89,8 @@ class ItemController:
             return JsonResponse({"error": "Position must be an integer."}, status=400)
         if "status" in payload and not isinstance(payload["status"], str):
             return JsonResponse({"error": "Status must be a string."}, status=400)
+        if "final_value" in payload and not isinstance(payload["final_value"], str):
+            return JsonResponse({"error": "Final value must be a string."}, status=400)
 
         item = self.service.update(
             item_id=item_id,
@@ -96,6 +98,7 @@ class ItemController:
             description=payload.get("description"),
             position=payload.get("position"),
             status=payload.get("status"),
+            final_value=payload.get("final_value")
         )
 
         serialized_item = ItemSerializer(item)

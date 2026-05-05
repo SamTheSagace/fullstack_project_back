@@ -51,6 +51,7 @@ class ItemsService:
                 description: Optional[str] = None, 
                 position: Optional[int] = None, 
                 status: Optional[str] = None,
+                final_value: Optional[str] = None,
             ) -> Item:
                 try:
                     item = Item.objects.get(id=item_id)
@@ -62,6 +63,8 @@ class ItemsService:
                         item.position = position
                     if status is not None:
                         item.status = status
+                    if final_value is not None:
+                        item.final_value = final_value
                     item.save()
                     return item
                 except Item.DoesNotExist:
