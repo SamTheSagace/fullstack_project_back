@@ -80,7 +80,7 @@ def create_item(request: HttpRequest):
     return item_controller.create(request)
 
 @csrf_exempt
-@require_http_methods(["PUT"])
+@require_POST
 def update_item(request: HttpRequest, id: int):
     return item_controller.update(request, id)
 
